@@ -1,6 +1,7 @@
 import CryptoJS from 'crypto-js';
 import { info_data } from '../../globals.js';
 import { exec } from 'child_process';
+import path from 'path';
 
 export const postFile = (req, res) => {
   try {
@@ -36,9 +37,11 @@ export const postFile = (req, res) => {
 
 export const getFile = (req, res) => {
   try {
-    res.sendFile('shopify-schema.d.ts', {
-      root: '/result/shopify-schema.d.ts',
-    });
+    const file = path.join(
+      new URL('.', import.meta.url).pathname,
+      'shopify-schema.d.ts'
+    );
+    res.sendFile(file);
   } catch (error) {
     res.status(500).json({ message: 'Error' });
   }
