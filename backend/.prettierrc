@@ -1,0 +1,8 @@
+{
+  "userTabs": true,
+  "semi": true,
+  "singleQuote": true,
+  "jsxSingleQuote": true,
+  "bracketSameLine": false,
+  "arrowParens": "always"
+}
