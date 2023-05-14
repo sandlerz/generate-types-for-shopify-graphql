@@ -16,7 +16,6 @@ const config: CodegenConfig = {
       },
     },
   ],
-  documents: ['shopify/**/*.gql'],
   ignoreNoDocuments: true, // for better experience with the watcher
   generates: {
     './result/shopify-schema.d.ts': {

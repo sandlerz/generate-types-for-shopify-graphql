@@ -5,7 +5,7 @@ To use this package, follow these steps:
 1. Clone the repository:
 
 ```sh
-  git clone https://github.com/yourusername/generate-types-for-shopify-graphql.git
+  git clone git@github.com:sandlerz/generate-types-for-shopify-graphql.git
 ```
 
 2. Install the dependencies:
