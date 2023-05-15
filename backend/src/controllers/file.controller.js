@@ -2,34 +2,54 @@ import CryptoJS from 'crypto-js';
 import { info_data } from '../../globals.js';
 import { exec } from 'child_process';
 import path from 'path';
+import fs from 'fs';
 
-export const postFile = (req, res) => {
+export const postFile = async (req, res) => {
   try {
-    // const { url, acces_token } = CryptoJS.AES.decrypt(
-    //   info.data,
-    //   process.env.PSS_ENCRYP
-    // ).toString(CryptoJS.enc.Utf8);
-    console.log(req.body);
     const { url, access_token } = req.body;
-    const data_global = info_data;
 
     process.env.DATA_1 = url;
     process.env.DATA_2 = access_token;
 
-    // if (data_global.url === '' || data_global.access_token === '') {
-    //   return res.status(500).json({ message: 'Error' });
-    // }
+    // exec('yarn genType', (err, stdout, stderr) => {
+    //   if (err) {
+    //     console.error(err);
+    //     return res.status(500).send('Error al ejecutar el script');
+    //   }
+    //   console.log(stdout);
+    //   console.log(stderr);
+    // });
 
-    exec('yarn genType', (err, stdout, stderr) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send('Error al ejecutar el script');
-      }
-      console.log(stdout);
-      console.log(stderr);
+    process.env.DATA_1 = url;
+    process.env.DATA_2 = access_token;
+
+    await new Promise((resolve, reject) => {
+      exec('yarn genType', (err, stdout, stderr) => {
+        if (err) {
+          console.error(err);
+          reject(new Error('Error al ejecutar el script'));
+        }
+        console.log(stdout);
+        console.log(stderr);
+        resolve();
+      });
     });
 
-    res.status(200).json({ message: 'Success' });
+    const files = fs.readdirSync('./result');
+    const sortedFiles = files
+      .filter((file) => file.endsWith('.d.ts'))
+      .sort((a, b) => {
+        const aStat = fs.statSync(`./result/${a}`);
+        const bStat = fs.statSync(`./result/${b}`);
+        return bStat.mtimeMs - aStat.mtimeMs;
+      });
+
+    if (sortedFiles.length === 0) {
+      throw new Error('No se encontró ningún archivo generado');
+    }
+
+    const latestFile = sortedFiles[0];
+    res.status(200).json({ name: latestFile });
   } catch (error) {
     res.status(500).json({ message: 'Error' });
   }
@@ -37,12 +57,22 @@ export const postFile = (req, res) => {
 
 export const getFile = (req, res) => {
   try {
-    const file = path.join(
-      new URL('.', import.meta.url).pathname,
-      'shopify-schema.d.ts'
+    const { name } = req.body;
+    const currentFile = new URL(import.meta.url).pathname;
+    const file = path.resolve(
+      path.dirname(currentFile),
+      `../../result/${name}`
     );
     res.sendFile(file);
   } catch (error) {
-    res.status(500).json({ message: 'Error' });
+    res.status(500).json({ message: error.message });
   }
+};
+
+export const deleteFile = (req, res) => {
+  const { name } = req.body;
+  const currentFile = new URL(import.meta.url).pathname;
+  const file = path.resolve(path.dirname(currentFile), `../../result/${name}`);
+  fs.unlinkSync(file);
+  res.status(200).json({ message: 'Archivo eliminado' });
 };
