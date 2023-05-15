@@ -8,5 +8,5 @@ export const fileRouter = express.Router();
 
 fileRouter
   .post('/sendInfo', postFile)
-  .get('/getFile', getFile)
+  .post('/getFile', getFile)
   .delete('/deleteFile', deleteFile);

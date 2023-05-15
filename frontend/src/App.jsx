@@ -3,12 +3,15 @@ import ellipse from './assets/ellipse.png'
 import substrap from './assets/substrap.png'
 import { useState } from 'react'
 import { Code } from './components/Code'
+import { getData } from './utils/getData'
 
 function App() {
   const [inputs, setInputs] = useState({
     url: '',
     token: '',
   })
+  const [codeData, setCodeData] = useState(null)
+  const [file, setFile] = useState(null)
 
   const handleOnChange = (value, state) =>
     setInputs(prev => ({
@@ -16,9 +19,14 @@ function App() {
       [state]: value,
     }))
 
+  const handleData = ({ fileUrl, text }) => {
+    setCodeData(text)
+    setFile(fileUrl)
+  }
+
   return (
     <>
-      <main className="flex flex-col items-center py-14 pl-2 min-h-screen max-w-[1440px] w-full">
+      <main className="flex flex-col items-center py-14 px-4 min-h-screen max-w-[1440px] w-full mx-auto">
         <span className="font-semibold text-3xl text-center mx-auto mb-4">
           Storefront API
         </span>
@@ -26,6 +34,7 @@ function App() {
         <Button
           href="https://shopify.dev/docs/api/storefront"
           className="mb-8 w-24"
+          type="anchor"
         >
           Docs
         </Button>
@@ -51,11 +60,23 @@ function App() {
           placeholder="Access Token"
         />
 
-        <Button onClick={() => {}} className="mb-6">
-          Generate Types
+        <Button
+          onClick={() =>
+            getData({
+              callBack: handleData,
+              data: {
+                access_token: inputs.token,
+                url: inputs.url,
+              },
+            })
+          }
+          className="mb-6"
+          type="button"
+        >
+          Generate {codeData && 'New'} Types
         </Button>
 
-        <Code codeData={"console.log('hello world')"} />
+        <Code codeData={codeData} file={file} />
       </main>
 
       <img src={ellipse} className="max-w-xl absolute -z-10 top-48 -left-28" />
