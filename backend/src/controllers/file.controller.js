@@ -20,9 +20,6 @@ export const postFile = async (req, res) => {
     //   console.log(stderr);
     // });
 
-    process.env.DATA_1 = url;
-    process.env.DATA_2 = access_token;
-
     await new Promise((resolve, reject) => {
       exec('yarn genType', (err, stdout, stderr) => {
         if (err) {
